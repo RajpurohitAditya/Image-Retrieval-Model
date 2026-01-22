@@ -1,0 +1,7 @@
+streamlit 
+torch
+torchvision 
+transformers 
+faiss-cpu 
+Pillow 
+numpy
