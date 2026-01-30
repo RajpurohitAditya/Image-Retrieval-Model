@@ -6,9 +6,38 @@ import os
 from PIL import Image
 from transformers import AutoImageProcessor, AutoModel
 
-# --- Configuration & UI Setup ---
-st.set_page_config(page_title="Visual Jewelry Search", layout="wide")
+AUTHORIZED_USERS = {
+    "admin": "kalamandir@2026"}
+
+def check_password():
+    """Returns True if the user had the correct password."""
+    if "password_correct" not in st.session_state:
+        # Show login form
+        st.title("🔐 Company Login")
+        user = st.text_input("Username")
+        pwd = st.text_input("Password", type="password")
+        
+        if st.button("Login"):
+            if user in AUTHORIZED_USERS and pwd == AUTHORIZED_USERS[user]:
+                st.session_state["password_correct"] = True
+                st.session_state["current_user"] = user
+                st.rerun() # Refresh to hide login and show app
+            else:
+                st.error("❌ Invalid credentials")
+        return False
+    else:
+        return True
+
+# --- 2. THE GATEKEEPER ---
+if not check_password():
+    st.stop() # 🛑 THIS STOPS THE SCRIPT HERE. Everything below is hidden.
+
+# --- 3. MAIN APP (Only runs if password is correct) ---
 st.title("💎 AI Visual Inventory Search")
+st.sidebar.write(f"Logged in as: **{st.session_state.current_user}**")
+if st.sidebar.button("Logout"):
+    del st.session_state["password_correct"]
+    st.rerun()
 
 INVENTORY_DIR = "images" # Folder where your product images are
 if not os.path.exists(INVENTORY_DIR):
